@@ -59,7 +59,7 @@ $ npm test
 
 ## Issues
 
-You can find list of issues using **[this link](http://github.com/http-auth/http-auth-connect/issues)**.
+You can find list of issues using **[this link](http://github.com/http-auth/http-auth-passport/issues)**.
 
 ## Requirements
 
