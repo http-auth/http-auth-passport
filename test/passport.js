@@ -1,113 +1,125 @@
 "use strict";
 
 // Expect module.
-const expect = require('chai').expect;
+const expect = require("chai").expect;
 
 // Request module.
-const request = require('request');
+const request = require("request");
 
 // Source.
-const auth = require('http-auth');
-const authPassport = require('../src/index');
+const auth = require("http-auth");
+const authPassport = require("../src/index");
 
 // Express.
-const express =  require('express');
+const express = require("express");
 
 // Passport.
-const passport = require('passport');
+const passport = require("passport");
 
 // Passport.
-describe('passport', () => {
-    let server = undefined;
+describe("passport", () => {
+  let server = undefined;
 
-    before(() => {
-        // Configure authentication.
-        const basic = auth.basic({
-            realm: "Private Area."
-        }, (username, password, done) => {
-            if (username === 'gevorg') {
-                done(new Error("Error comes here"));
-            } else if (username === "mia" && password === "supergirl") {
-                done(true);
-            } else if (username === "ColonUser" && password === "apasswordwith:acolon") {
-                done(true);
-            } else {
-                done(false);
-            }
-        });
+  before(() => {
+    // Configure authentication.
+    const basic = auth.basic(
+      {
+        realm: "Private Area."
+      },
+      (username, password, done) => {
+        if (username === "gevorg") {
+          done(new Error("Error comes here"));
+        } else if (username === "mia" && password === "supergirl") {
+          done(true);
+        } else if (
+          username === "ColonUser" &&
+          password === "apasswordwith:acolon"
+        ) {
+          done(true);
+        } else {
+          done(false);
+        }
+      }
+    );
 
-        // Creating new HTTP server.
-        const app = express();
+    // Creating new HTTP server.
+    const app = express();
 
-        // Setup passport.
-        passport.use(authPassport(basic));
+    // Setup passport.
+    passport.use(authPassport(basic));
 
-        // Setup route.
-        app.get( '/', passport.authenticate('http', { session: false }), (req, res) => {
-            res.send(`Welcome to private area - ${req.user}!`);
-        });
+    // Setup route.
+    app.get(
+      "/",
+      passport.authenticate("http", { session: false }),
+      (req, res) => {
+        res.send(`Welcome to private area - ${req.user}!`);
+      }
+    );
 
-        // Error handler.
-        // eslint-disable-next-line no-unused-vars
-        app.use((err, req, res, next) => {
-            res.status(400).end(err.message);
-        });
-
-        // Start server.
-        server = app.listen(1337);
+    // Error handler.
+    // eslint-disable-next-line no-unused-vars
+    app.use((err, req, res, next) => {
+      res.status(400).end(err.message);
     });
 
-    after(() => {
-        server.close();
-    });
+    // Start server.
+    server = app.listen(1337);
+  });
 
-    it('error', (done) => {
-        const callback = (error, response, body) => {
-            expect(body).to.equal("Error comes here");
-            done();
-        };
+  after(() => {
+    server.close();
+  });
 
-        // Test request.
-        request.get('http://127.0.0.1:1337', callback).auth('gevorg', 'gpass');
-    });
+  it("error", done => {
+    const callback = (error, response, body) => {
+      expect(body).to.equal("Error comes here");
+      done();
+    };
 
-    it('success', (done) => {
-        const callback = (error, response, body) => {
-            expect(body).to.equal("Welcome to private area - mia!");
-            done();
-        };
+    // Test request.
+    request.get("http://127.0.0.1:1337", callback).auth("gevorg", "gpass");
+  });
 
-        // Test request.
-        request.get('http://127.0.0.1:1337', callback).auth('mia', 'supergirl');
-    });
+  it("success", done => {
+    const callback = (error, response, body) => {
+      expect(body).to.equal("Welcome to private area - mia!");
+      done();
+    };
 
-    it('wrong password', (done) => {
-        const callback = (error, response, body) => {
-            expect(body).to.equal("Unauthorized");
-            done();
-        };
+    // Test request.
+    request.get("http://127.0.0.1:1337", callback).auth("mia", "supergirl");
+  });
 
-        // Test request.
-        request.get('http://127.0.0.1:1337', callback).auth('mia', 'cute');
-    });
+  it("wrong password", done => {
+    const callback = (error, response, body) => {
+      expect(body).to.equal("Unauthorized");
+      done();
+    };
 
-    it('wrong user', (done) => {
-        const callback = (error, response, body) => {
-            expect(body).to.equal("Unauthorized");
-            done();
-        };
+    // Test request.
+    request.get("http://127.0.0.1:1337", callback).auth("mia", "cute");
+  });
 
-        // Test request.
-        request.get('http://127.0.0.1:1337', callback).auth('Tina', 'supergirl');
-    });
+  it("wrong user", done => {
+    const callback = (error, response, body) => {
+      expect(body).to.equal("Unauthorized");
+      done();
+    };
 
-    it('password with colon', (done) => {
-        const callback = (error, response, body) => {
-            expect(body).to.equal("Welcome to private area - ColonUser!");
-            done();
-        };
+    // Test request.
+    request.get("http://127.0.0.1:1337", callback).auth("Tina", "supergirl");
+  });
 
-        // Test request.
-        request.get('http://127.0.0.1:1337', callback).auth('ColonUser', 'apasswordwith:acolon');
-    });
+  it("password with colon", done => {
+    const callback = (error, response, body) => {
+      expect(body).to.equal("Welcome to private area - ColonUser!");
+      done();
+    };
+
+    // Test request.
+    request
+      .get("http://127.0.0.1:1337", callback)
+      .auth("ColonUser", "apasswordwith:acolon");
+  });
 });
