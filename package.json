@@ -1,7 +1,7 @@
 {
   "name": "http-auth-passport",
   "description": "Passport.js integration with http-auth module.",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "author": "Gevorg Harutyunyan (http://github.com/gevorg)",
   "maintainers": [
     {
@@ -34,7 +34,7 @@
     "express": "^4.17.1",
     "http-auth": "^4.1.2",
     "mocha": "^7.0.1",
-    "passport": "^0.4.1",
+    "passport": "^0.6.0",
     "prettier": "^1.19.1",
     "request": "^2.88.0"
   },
